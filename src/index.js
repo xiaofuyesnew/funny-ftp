@@ -55,18 +55,18 @@ class FunnyFTP {
 
         console.log(`connect to ${this.config.host}:${this.config.port}...`)
 
-        client.connect(this.config.port, this.config.host, () => {
-            console.log('connected successfully')
-            console.log(client.localPort)
-            self.dataServer.listen(client.localPort + 1, self.config.local)
-        })
-
-        this.dataServer = net.createServer(socket => {
+        const dataServer = net.createServer(socket => {
+            console.log('data conn')
             self.dataSocket = socket
             socket.on('data', data => {
                 console.log('ok')
                 console.log(data.toJSON())
             })
+        })
+        client.connect(this.config.port, this.config.host, () => {
+            console.log('connected successfully')
+            console.log(client.localPort)
+            dataServer.listen(client.localPort + 1, self.config.local)
         })
         
         client.on('data', msg => {
@@ -89,17 +89,17 @@ class FunnyFTP {
                     client.write(`PORT ${self.config.local.split('.').join(',')},${parseInt((client.localPort + 1) / 256)},${(client.localPort + 1) % 256}\r\n`)
                     flag = false
                 } else {
-                    client.write('CWD 2017\r\n')
+                    client.write('PWD\r\n')
                 }
             }
-            if (code === 250) {
-                client.end()
+            if (code === 257) {
+                client.write(`RETR Web.config\r\n`)
             }
         })
 
         client.on('end', () => {
             console.log('结束')
-            client.write('CWD 2018\r\n')
+            // client.write('CWD 2018\r\n')
         })
     }
 }
