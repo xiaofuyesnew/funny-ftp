@@ -49,22 +49,25 @@ class FunnyFTP {
     connect() {
 
         const self = this
+        let flag = false
+        this.client = new net.Socket()
+        const client = this.client
+
+        console.log(`connect to ${this.config.host}:${this.config.port}...`)
+
+        client.connect(this.config.port, this.config.host, () => {
+            console.log('connected successfully')
+            console.log(client.localPort)
+            self.dataServer.listen(client.localPort + 1, self.config.local)
+        })
 
         this.dataServer = net.createServer(socket => {
             self.dataSocket = socket
             socket.on('data', data => {
+                console.log('ok')
                 console.log(data.toJSON())
             })
         })
-
-        console.log(`connect to ${this.config.host}:${this.config.port}...`)
-
-        const client = net.connect(this.config.port, this.config.host, () => {
-            console.log('connected successfully')
-            self.dataServer.listen(client.localPort + 1, self.config.local)
-        })
-
-        this.client = client
         
         client.on('data', msg => {
             console.log(msg.toString())
@@ -78,38 +81,27 @@ class FunnyFTP {
             }
             if (code === 230) {
                 // login successful
-                
+                client.write('TYPE I\r\n')
+                flag = true
             }
+            if (code === 200) {
+                if (flag) {
+                    client.write(`PORT ${self.config.local.split('.').join(',')},${parseInt((client.localPort + 1) / 256)},${(client.localPort + 1) % 256}\r\n`)
+                    flag = false
+                } else {
+                    client.write('CWD 2017\r\n')
+                }
+            }
+            if (code === 250) {
+                client.end()
+            }
+        })
+
+        client.on('end', () => {
+            console.log('结束')
+            client.write('CWD 2018\r\n')
         })
     }
 }
 
 module.exports = FunnyFTP
-
-// const client = net.connect(21, '106.14.194.253', () => {
-//     console.log('创建连接')
-// })
-
-// let dataConnect = null
-
-// client.on('data', data => {
-//     console.log(data.toString())
-//     let code = data.toString().substring(0, 3)
-//     if (code === '220') {
-//         client.write('USER panna_hhs\r\n')
-//     }
-//     if (code === '331') {
-//         client.write('PASS B6oGm8B4\r\n')
-//     }
-//     if (code === '230') {
-//         client.write('PWD\r\n')
-//     }
-//     if (code === '257') {
-//         console.log('打印成功')
-//     }
-//     // client.end()
-// })
-
-// client.on('end', () => {
-//     console.log('断开连接')
-// })
