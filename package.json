@@ -1,0 +1,11 @@
+{
+  "name": "funny-ftp",
+  "version": "0.1.0",
+  "main": "./src/index.js",
+  "repository": "git@github.com:xiaofuyesnew/funny-ftp.git",
+  "author": "xiaofuyesnew <xiaofuyesnew@qq.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node ./src/index.js"
+  }
+}
