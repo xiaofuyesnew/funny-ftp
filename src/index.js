@@ -2,7 +2,7 @@
  * @Author: allen.wong 
  * @Date: 2019-02-21 16:54:53 
  * @Last Modified by: allen.wong
- * @Last Modified time: 2019-02-21 18:11:11
+ * @Last Modified time: 2019-02-22 09:50:32
  */
 
 const net = require('net')
@@ -70,7 +70,7 @@ class FunnyFTP {
         })
         
         client.on('data', msg => {
-            console.log(msg.toString())
+            console.log(msg.toString().replace('\r\n', ''))
             let code = +msg.toString().substring(0, 3)
             // login
             if (code === 220) {
