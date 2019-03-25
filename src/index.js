@@ -70,11 +70,7 @@ class FunnyFTP {
         })
         
         client.on('data', msg => {
-<<<<<<< HEAD
-            console.log(msg.toString().replace('\r\n'))
-=======
             console.log(msg.toString().replace('\r\n', ''))
->>>>>>> d382b3856d544ba5af87cad1d0108a40d3f85519
             let code = +msg.toString().substring(0, 3)
             // login
             if (code === 220) {
