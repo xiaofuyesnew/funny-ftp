@@ -25,13 +25,13 @@ class FunnyFTP {
                     errArr.push('host')
                 }
                 if (!config.user) {
-                    errArr.push('host')
+                    errArr.push('user')
                 }
                 if (!config.pass) {
-                    errArr.push('host')
+                    errArr.push('pass')
                 }
                 if (!config.local) {
-                    errArr.push('host')
+                    errArr.push('local')
                 }
                 throw new Error(`no necessary value in key [${errArr.join(',')}]`)
             }
@@ -50,8 +50,8 @@ class FunnyFTP {
 
         const self = this
         let flag = false
-        this.client = new net.Socket()
-        const client = this.client
+        const client = new net.Socket()
+        this.client = client
 
         console.log(`connect to ${this.config.host}:${this.config.port}...`)
 
@@ -70,7 +70,7 @@ class FunnyFTP {
         })
         
         client.on('data', msg => {
-            console.log(msg.toString())
+            console.log(msg.toString().replace('\r\n'))
             let code = +msg.toString().substring(0, 3)
             // login
             if (code === 220) {
