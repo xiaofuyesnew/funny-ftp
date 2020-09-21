@@ -2,7 +2,7 @@
  * @Author: Allen.Wong 
  * @Date: 2020-09-21 11:37:13 
  * @Last Modified by: Allen.Wong
- * @Last Modified time: 2020-09-21 18:26:31
+ * @Last Modified time: 2020-09-21 18:38:17
  */
 
 const { Socket, createServer } = require('net')
@@ -63,7 +63,7 @@ class FunnyFTP {
 
   }
   clientProcessor(cmd) {
-
+    
   }
   ready() {
     this.listener()
