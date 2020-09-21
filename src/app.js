@@ -1,6 +1,11 @@
-const config = require('./config')
 const FunnyFTP = require('./index')
 
-const app = new FunnyFTP(config)
+const app = new FunnyFTP({
+  host: '106.14.194.253',
+  user: 'panna_hhs',
+  pass: 'B6oGm8B4',
+  local: '192.168.0.106',
+  dir: '/dev'
+})
 
-app.ready()
+app.connect()
