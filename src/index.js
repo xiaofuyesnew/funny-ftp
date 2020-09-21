@@ -1,106 +1,74 @@
 /*
- * @Author: allen.wong 
- * @Date: 2019-02-21 16:54:53 
- * @Last Modified by: allen.wong
- * @Last Modified time: 2019-02-22 09:50:32
+ * @Author: Allen.Wong 
+ * @Date: 2020-09-21 11:37:13 
+ * @Last Modified by: Allen.Wong
+ * @Last Modified time: 2020-09-21 18:26:31
  */
 
-const net = require('net')
+const { Socket, createServer } = require('net')
 const fs = require('fs')
-
-// const config = {
-//     host: serverIP<String>,
-//     port: serverPort<Number>,  // optional default 21
-//     user: username<String>,
-//     pass: password<String>,
-//     local: localIP<String>
-// }
+// const { config } = require('process')
 
 class FunnyFTP {
   constructor(config) {
     if (config) {
-      if (!(config.host || config.user || config.pass || config.local)) {
-        let errArr = []
-        if (!config.host) {
+      const { host, user, pass, local, port } = config
+      let errArr = []
+      if (!(host && user && pass && local)) {
+        if (!host) {
           errArr.push('host')
         }
-        if (!config.user) {
+        if (!user) {
           errArr.push('user')
         }
-        if (!config.pass) {
+        if (!pass) {
           errArr.push('pass')
         }
-        if (!config.local) {
+        if (!local) {
           errArr.push('local')
         }
         throw new Error(`no necessary value in key [${errArr.join(',')}]`)
       }
-      this.config = {
-        host: config.host,
-        port: config.port || 21,
-        user: config.user,
-        pass: config.pass,
-        local: config.local
-      }
+      this.config = { host, user, pass, local, port: port || 21 }
     } else {
       throw new Error('need config Object')
     }
   }
   connect() {
     const self = this
-    let flag = false
-    const client = new net.Socket()
-    this.client = client
+    const client = new Socket()
+    const dataServer = createServer()
 
-    console.log(`connect to ${this.config.host}:${this.config.port}...`)
+    const { port, host, local } = this.config
 
-    const dataServer = net.createServer(socket => {
-      console.log('data conn')
-      self.dataSocket = socket
-      socket.on('data', data => {
-        console.log('ok')
-        console.log(data.toJSON())
+    return new Promise((resolve, reject) => {
+      client.connect(port, host, () => {
+        const { localPort } = client
+        console.log(`创建连接成功，连接端口：${localPort}`)
+        dataServer.listen(localPort + 1, local)
+        resolve({client, dataServer})
       })
     })
-    client.connect(this.config.port, this.config.host, () => {
-      console.log('connected successfully')
-      console.log(client.localPort)
-      dataServer.listen(client.localPort + 1, self.config.local)
+  }
+  listener() {
+    this.connect().then(res => {
+      // console.log(res)
+      const {client, dataServer} = res
+      client.on('data', msg => {
+        console.log(msg)
+      })
     })
+  }
+  login() {
 
-    client.on('data', msg => {
-      console.log(msg.toString().replace('\r\n', ''))
-      let code = +msg.toString().substring(0, 3)
-      // login
-      if (code === 220) {
-        client.write(`USER ${self.config.user}\r\n`)
-      }
-      if (code === 331) {
-        client.write(`PASS ${self.config.pass}\r\n`)
-      }
-      if (code === 230) {
-        // login successful
-        client.write('TYPE I\r\n')
-        flag = true
-      }
-      if (code === 200) {
-        if (flag) {
-          client.write(`PORT ${self.config.local.split('.').join(',')},${parseInt((client.localPort + 1) / 256)},${(client.localPort + 1) % 256}\r\n`)
-          flag = false
-        } else {
-          client.write('PWD\r\n')
-        }
-      }
-      if (code === 257) {
-        client.write(`RETR Web.config\r\n`)
-      }
-    })
+  }
+  clientProcessor(cmd) {
 
-    client.on('end', () => {
-      console.log('结束')
-      // client.write('CWD 2018\r\n')
-    })
+  }
+  ready() {
+    this.listener()
   }
 }
 
 module.exports = FunnyFTP
+

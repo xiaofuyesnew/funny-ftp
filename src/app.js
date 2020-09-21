@@ -3,4 +3,4 @@ const FunnyFTP = require('./index')
 
 const app = new FunnyFTP(config)
 
-app.connect()
+app.ready()
