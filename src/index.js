@@ -47,7 +47,6 @@ class FunnyFTP {
     }
   }
   connect() {
-
     const self = this
     let flag = false
     const client = new net.Socket()

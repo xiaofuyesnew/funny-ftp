@@ -6,6 +6,6 @@
   "author": "xiaofuyesnew <xiaofuyesnew@qq.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node ./simple.js"
+    "start": "node src/app.js"
   }
 }
