@@ -35,6 +35,9 @@ class FunnyFTP {
       throw new Error('need config Object')
     }
   }
+  cmdProcessor(cmd) {
+    
+  }
   connect() {
     const self = this
     const client = new Socket()
