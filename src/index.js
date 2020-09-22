@@ -38,8 +38,6 @@ class FunnyFTP {
   connect() {
     const self = this
     const client = new Socket()
-    const dataServer = createServer()
-
     // socket => {
     //   // console.log(socket)
     //   dataClient = socket
@@ -60,10 +58,6 @@ class FunnyFTP {
       console.log('建立连接，等待欢迎信息...')
 
       const { localPort } = client
-
-      console.log(localPort, typeof localPort)
-
-      dataServer.listen(localPort + 1, local)
 
       client.on('data', msg => {
         const { user, pass, dir } = self.config
@@ -94,12 +88,31 @@ class FunnyFTP {
             break
           case 250:
             // client.write('QUIT\r\n')
-            client.write('STOR a.txt\r\n')
+            // client.write('RETR a.txt\r\n')
+
+            client.write('STOR ab.txt\r\n')
             // console.log(dataClient)
             // dataClient.write(fs.readFileSync(path.resolve('src/a.txt')))
             break
           case 150:
-            dataServer.write(fs.readFileSync(path.resolve('src/a.txt')))
+            createServer(c => {
+              console.log('开始传输文件...')
+              // console.log(c)
+              fs.readFile(path.resolve('src/ab.txt'), (err, data) => {
+                if (!err) {
+                  c.write(data, () => {
+                    console.log('传输完成')
+                    c.destroy()
+                  })
+                }
+              })
+
+              c.on('close', () => {
+                console.log('close')
+                process.exit()
+              })
+
+            }).listen(localPort + 1, local)
         }
       }).on('end', () => process.exit())
     })
