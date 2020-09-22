@@ -73,10 +73,9 @@ class FunnyFTP {
             break
           case 230:
             client.write('TYPE I\r\n')
-            flag = true
             break
           case 200:
-            if (flag) {
+            if (msg.indexOf('Type') !== -1) {
               client.write(`PORT ${local.split('.').join(',')},${Math.floor((localPort + 1) / 256)},${(localPort + 1) % 256}\r\n`)
               flag = false
             } else {
@@ -88,9 +87,9 @@ class FunnyFTP {
             break
           case 250:
             // client.write('QUIT\r\n')
-            // client.write('RETR a.txt\r\n')
+            client.write('RETR ab.txt\r\n')
 
-            client.write('STOR ab.txt\r\n')
+            // client.write('STOR ab.txt\r\n')
             // console.log(dataClient)
             // dataClient.write(fs.readFileSync(path.resolve('src/a.txt')))
             break
@@ -98,20 +97,23 @@ class FunnyFTP {
             createServer(c => {
               console.log('开始传输文件...')
               // console.log(c)
-              fs.readFile(path.resolve('src/ab.txt'), (err, data) => {
-                if (!err) {
-                  c.write(data, () => {
-                    console.log('传输完成')
-                    c.destroy()
-                  })
-                }
+              // fs.readFile(path.resolve('src/ab.txt'), (err, data) => {
+              //   if (!err) {
+              //     c.write(data, () => {
+              //       console.log('传输完成')
+              //       c.destroy()
+              //     })
+              //   }
+              // })
+              c.on('data', data => {
+                console.log('传输完成')
+                console.log(data.toJSON())
+                fs.writeFileSync('./abc.txt', data)
               })
-
               c.on('close', () => {
                 console.log('close')
                 process.exit()
               })
-
             }).listen(localPort + 1, local)
         }
       }).on('end', () => process.exit())
