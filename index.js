@@ -17,12 +17,16 @@ const config = require(path.resolve(`${process.cwd()}/ftpconfig.js`))
 
 program
   .name("funny")
+  .option('-d, --directory', 'upload directory')
   .option('--config', 'specify a config file')
-  .action((cmd, cmdObj) => {
+  .action((cmd) => {
     console.log(chalk.blueBright(`local IP: ${getLocalIp()}`))
     console.dir(config)
-    if (cmd) {
+    const {args} = cmd
+    if (args.length) {
+      console.log(cmd)
       console.log('cmd')
+
     } else {
       console.log('no cdm')
     }
