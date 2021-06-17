@@ -1,13 +1,15 @@
-const { Socket, createServer } = require("net");
+const client
 
-const config = require('../ftpconfig')
+const handleData = (data) => {
+  // get data & do next
+}
 
-const { port, host, local } = config
+client.on('data', handleData)
 
-const client = new Socket()
+const main = () => {
+  client.write(`cmd`)
+  // get listener result & do next?
+}
 
-console.log(client.localAddress)
+main()
 
-client.connect(port, host, () => {
-  console.log(client.localAddress)
-})

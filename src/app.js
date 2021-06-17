@@ -24,15 +24,29 @@ const mapDir = async (target, handle) => {
   });
 };
 
+const serverDataHandle = (e) => {
+  console.log(e.toJSON());
+  server.close();
+};
+
+const serverCreated = (e) => {
+  console.log("服务器已创建");
+  e.on("data", serverDataHandle).on("close", (e) => {
+    console.log("server关闭");
+    console.log(e);
+  });
+};
+
 // mapDir('dist', file => console.log(`upload:${file}`))
 const handleConnect = () => {
   console.log("已连接服务端");
   console.log(`localAddress: ${client.localAddress}`);
   localAddress = client.localAddress;
   localPort = client.localPort;
-  // setTimeout(() => {
-  //   client.destroy();
-  // }, 5000);
+  server = createServer(serverCreated).listen(localPort + 1, localAddress);
+  setTimeout(() => {
+    client.destroy();
+  }, 5000);
 };
 
 const handleData = (e) => {
@@ -60,15 +74,15 @@ const handleData = (e) => {
     );
   }
 
-  if (msg === '200 Port command successful') {
-    console.log('端口配置完成')
+  if (msg === "200 Port command successful") {
+    console.log("端口配置完成");
     // return client.write('PWD\r\n')
-    return client.write('CWD /dev/auto\r\n')
+    return client.write("CWD /dev\r\n");
   }
 
-  // if (code === 257) {
-  //   return client.write('CWD /dev')
-  // }
+  if (code === 250) {
+    return client.write("MLSD\r\n");
+  }
 };
 
 const handleClose = (e) => {
@@ -80,18 +94,22 @@ const handleEnd = () => {
   console.log("链接结束");
 };
 
-const createClient = (port, host) =>
-  new Socket()
+const createClient = () => {
+  console.log("创建客户端...");
+  console.log(host);
+  client = new Socket()
     .connect(port, host, handleConnect)
     .on("data", handleData)
     .on("close", handleClose)
     .on("end", handleEnd);
+  return client;
+};
 
-console.log("创建客户端...");
-client = createClient(port, host);
+// client = createClient(port, host);
 
-const funny = async () => {};
+// const funny = () => {};
 
 module.exports = {
-  funny,
+  createClient,
+  server,
 };
