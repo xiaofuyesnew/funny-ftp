@@ -3,4 +3,8 @@ module.exports = {
   port: 21,
   user: 'panna_hhs',
   pass: 'B6oGm8B4',
+  directory: {
+    local: 'dist',
+    server: '/dev'
+  }
 }

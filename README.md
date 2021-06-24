@@ -1,2 +1,3 @@
 # funny-ftp
-An FTP client based on node.js.
+An active mode FTP client based on node.js.
+

@@ -3,7 +3,7 @@ const { Socket, createServer } = require("net");
 const fs = require("fs");
 const path = require("path");
 
-let client, localAddress, localPort, server;
+let client, localAddress, localPort, server, lastLog;
 
 // 遍历文件结构
 
@@ -37,6 +37,25 @@ const serverCreated = (e) => {
   });
 };
 
+const listDir = () => {
+  client.on("data", (e) => {
+    const msg = e.toString().replace("\r\n", "");
+    const code = +msg.split(" ")[0];
+    console.log("dir:" + msg);
+    // if (msg === "200 Port command successful") {
+    //   console.log("端口配置完成");
+    //   // return client.write('PWD\r\n')
+    //   return client.write("CWD /dev\r\n");
+    // }
+
+    if (code === 250) {
+      return client.write("MLSD\r\n");
+    }
+  });
+
+  client.write("CWD /dev\r\n");
+};
+
 // mapDir('dist', file => console.log(`upload:${file}`))
 const handleConnect = () => {
   console.log("已连接服务端");
@@ -45,14 +64,15 @@ const handleConnect = () => {
   localPort = client.localPort;
   server = createServer(serverCreated).listen(localPort + 1, localAddress);
   setTimeout(() => {
-    client.destroy();
+    // client.destroy();
+    listDir();
   }, 5000);
 };
 
-const handleData = (e) => {
+const handleReady = (e) => {
   const msg = e.toString().replace("\r\n", "");
   const code = +msg.split(" ")[0];
-  console.log(msg);
+  console.log("ready:" + msg);
 
   if (code === 220) {
     return client.write(`USER ${user}\r\n`);
@@ -73,16 +93,6 @@ const handleData = (e) => {
       )},${(localPort + 1) % 256}\r\n`
     );
   }
-
-  if (msg === "200 Port command successful") {
-    console.log("端口配置完成");
-    // return client.write('PWD\r\n')
-    return client.write("CWD /dev\r\n");
-  }
-
-  if (code === 250) {
-    return client.write("MLSD\r\n");
-  }
 };
 
 const handleClose = (e) => {
@@ -99,8 +109,8 @@ const createClient = () => {
   console.log(host);
   client = new Socket()
     .connect(port, host, handleConnect)
-    .on("data", handleData)
-    .on("close", handleClose)
+    .on("data", handleReady)
+    .on("close", handleClose) 
     .on("end", handleEnd);
   return client;
 };
