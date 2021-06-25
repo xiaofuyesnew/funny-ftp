@@ -7,6 +7,9 @@ const handleData = (data) => {
 client.on('data', handleData)
 
 const main = () => {
+  client.on('data', () => {
+    // do another things
+  })
   client.write(`cmd`)
   // get listener result & do next?
 }

@@ -24,8 +24,11 @@ const mapDir = async (target, handle) => {
   });
 };
 
+let listStr = ''
+
 const serverDataHandle = (e) => {
-  console.log(e.toJSON());
+  const str = e.toString()
+  console.log(e.toString());
   server.close();
 };
 
